@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Real-Time Cardiac Risk Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;700&family=Manrope:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body class="dashboard-body">
+  <main class="dashboard">
+    <header class="panel header">
+      <div>
+        <nav class="top-nav">
+          <a href="index.html" class="nav-link">Intake</a>
+          <a href="dashboard.html" class="nav-link active">Live Dashboard</a>
+          <a href="dataset.html" class="nav-link">Dataset Dashboard</a>
+        </nav>
+        <h1>Real-Time Cardiac Risk Dashboard</h1>
+        <p class="muted">Streaming vitals from simulated IoT and camera sensors</p>
+      </div>
+      <div class="patient-chip">
+        <span id="patientMeta">Patient: --</span>
+      </div>
+    </header>
+
+    <section class="kpi-grid">
+      <article class="panel kpi kpi-hr">
+        <p>Heart Rate</p>
+        <h2 id="heartRate">--</h2>
+      </article>
+      <article class="panel kpi kpi-spo2">
+        <p>SpO₂</p>
+        <h2 id="spo2">--</h2>
+      </article>
+      <article class="panel kpi kpi-rr">
+        <p>Respiratory Rate</p>
+        <h2 id="respRate">--</h2>
+      </article>
+      <article class="panel kpi kpi-temp">
+        <p>Body Temperature</p>
+        <h2 id="bodyTemp">--</h2>
+      </article>
+    </section>
+
+    <section class="grid">
+      <article class="panel chart-panel">
+        <h3>Heart Rate Over Time</h3>
+        <canvas id="hrChart"></canvas>
+      </article>
+      <article class="panel chart-panel">
+        <h3>SpO₂ Over Time</h3>
+        <canvas id="spo2Chart"></canvas>
+      </article>
+      <article class="panel chart-panel">
+        <h3>Stress Score Over Time</h3>
+        <canvas id="stressChart"></canvas>
+      </article>
+      <article class="panel risk-panel">
+        <h3>Risk Analysis</h3>
+        <div class="probability-row">
+          <span>Heart Disease Probability</span>
+          <strong id="riskProbability">--%</strong>
+        </div>
+        <div id="riskBadge" class="risk-badge">Unknown</div>
+        <p id="riskDescription" class="muted">Waiting for prediction...</p>
+
+        <div id="warningBox" class="warning" hidden>
+          <strong>Warning</strong>
+          <p id="warningText">No active alerts.</p>
+        </div>
+
+        <dl class="sensor-list" id="sensorList"></dl>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

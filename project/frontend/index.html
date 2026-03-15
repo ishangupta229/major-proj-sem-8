@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cardiac IoT Intake</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;700&family=Manrope:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="intake-body">
+  <main class="intake-shell">
+    <section class="intake-card">
+      <nav class="top-nav">
+        <a href="index.html" class="nav-link active">Intake</a>
+        <a href="dataset.html" class="nav-link">Dataset Dashboard</a>
+      </nav>
+
+      <p class="eyebrow">IoT Cardiac Monitoring</p>
+      <h1>Patient Intake</h1>
+      <p class="muted">Enter basic demographics to start live sensor-based cardiac risk monitoring.</p>
+
+      <form id="intakeForm" class="intake-form">
+        <label>
+          Age
+          <input type="number" id="age" name="age" min="1" max="120" required />
+        </label>
+
+        <label>
+          Sex
+          <select id="sex" name="sex" required>
+            <option value="">Select</option>
+            <option value="1">Male</option>
+            <option value="0">Female</option>
+          </select>
+        </label>
+
+        <button type="submit">Start Live Monitoring</button>
+      </form>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

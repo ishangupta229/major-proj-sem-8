@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+.venv/
+.git/
+backend/model.pkl
+backend/model_evaluation.json
+backend/feature_importance.csv

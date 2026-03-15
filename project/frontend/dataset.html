@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cardiac Dataset Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;700&family=Manrope:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body class="dashboard-body">
+  <main class="dashboard">
+    <header class="panel header">
+      <div>
+        <nav class="top-nav">
+          <a href="index.html" class="nav-link">Intake</a>
+          <a href="dashboard.html" class="nav-link">Live Dashboard</a>
+          <a href="dataset.html" class="nav-link active">Dataset Dashboard</a>
+        </nav>
+        <h1>Cardiac Dataset Dashboard</h1>
+        <p class="muted">Exploration of merged_cardiac_training_dataset.csv</p>
+      </div>
+      <div class="patient-chip">
+        <span id="datasetMeta">Rows: --</span>
+      </div>
+    </header>
+
+    <section class="kpi-grid dataset-kpi-grid">
+      <article class="panel kpi kpi-hr">
+        <p>Total Rows</p>
+        <h2 id="kpiRows">--</h2>
+      </article>
+      <article class="panel kpi kpi-spo2">
+        <p>Total Columns</p>
+        <h2 id="kpiColumns">--</h2>
+      </article>
+      <article class="panel kpi kpi-rr">
+        <p>Disease Prevalence</p>
+        <h2 id="kpiPrevalence">--%</h2>
+      </article>
+      <article class="panel kpi kpi-temp">
+        <p>Avg Heart Rate</p>
+        <h2 id="kpiAvgHr">--</h2>
+      </article>
+    </section>
+
+    <section class="panel filter-panel">
+      <h3>Dataset Filters</h3>
+      <form id="datasetFilterForm" class="filter-form">
+        <label>
+          Sex
+          <select id="filterSex">
+            <option value="all">All</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </label>
+
+        <label>
+          Min Age
+          <input type="number" id="filterMinAge" min="0" max="120" placeholder="e.g. 30" />
+        </label>
+
+        <label>
+          Max Age
+          <input type="number" id="filterMaxAge" min="0" max="120" placeholder="e.g. 70" />
+        </label>
+
+        <label>
+          Risk Group
+          <select id="filterRisk">
+            <option value="all">All</option>
+            <option value="disease">Disease</option>
+            <option value="no_disease">No Disease</option>
+          </select>
+        </label>
+
+        <div class="filter-actions">
+          <button type="submit">Apply Filters</button>
+          <button type="button" id="resetFilters" class="secondary-btn">Reset</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="grid">
+      <article class="panel chart-panel">
+        <h3>Age Distribution</h3>
+        <canvas id="ageDistChart"></canvas>
+      </article>
+      <article class="panel chart-panel">
+        <h3>Gender Distribution</h3>
+        <canvas id="sexDistChart"></canvas>
+      </article>
+      <article class="panel chart-panel">
+        <h3>Disease Distribution</h3>
+        <canvas id="riskDistChart"></canvas>
+      </article>
+      <article class="panel chart-panel dataset-wide-chart">
+        <h3>SpO2 Bands</h3>
+        <canvas id="spo2BandChart"></canvas>
+      </article>
+      <article class="panel risk-panel">
+        <h3>Dataset Sample (Top Rows)</h3>
+        <div class="table-wrap">
+          <table id="datasetTable">
+            <thead id="datasetTableHead"></thead>
+            <tbody id="datasetTableBody"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

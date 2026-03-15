@@ -1,0 +1,85 @@
+{
+  "train_accuracy": 0.79025,
+  "test_accuracy": 0.748,
+  "roc_auc": 0.8525884930243284,
+  "rows": 5000,
+  "confusion_matrix": [
+    [
+      99,
+      19
+    ],
+    [
+      233,
+      649
+    ]
+  ],
+  "classification_report": {
+    "0": {
+      "precision": 0.29819277108433734,
+      "recall": 0.8389830508474576,
+      "f1-score": 0.44,
+      "support": 118.0
+    },
+    "1": {
+      "precision": 0.9715568862275449,
+      "recall": 0.735827664399093,
+      "f1-score": 0.8374193548387097,
+      "support": 882.0
+    },
+    "accuracy": 0.748,
+    "macro avg": {
+      "precision": 0.6348748286559411,
+      "recall": 0.7874053576232753,
+      "f1-score": 0.6387096774193548,
+      "support": 1000.0
+    },
+    "weighted avg": {
+      "precision": 0.8920999206406464,
+      "recall": 0.748,
+      "f1-score": 0.7905238709677419,
+      "support": 1000.0
+    }
+  },
+  "top_features": [
+    {
+      "feature": "age",
+      "importance": 0.5235016001067254
+    },
+    {
+      "feature": "stress_score",
+      "importance": 0.1964175672304887
+    },
+    {
+      "feature": "spo2",
+      "importance": 0.06270848322539367
+    },
+    {
+      "feature": "hrv_sdnn",
+      "importance": 0.022635988816788195
+    },
+    {
+      "feature": "camera_hrv",
+      "importance": 0.02247821317008476
+    },
+    {
+      "feature": "hrv_rmssd",
+      "importance": 0.02082801583545503
+    },
+    {
+      "feature": "camera_heart_rate",
+      "importance": 0.019250834736945593
+    },
+    {
+      "feature": "body_temperature",
+      "importance": 0.01783532848300176
+    },
+    {
+      "feature": "fatigue_score",
+      "importance": 0.017615075419522886
+    },
+    {
+      "feature": "estimated_age",
+      "importance": 0.017226330630815887
+    }
+  ]
+}
