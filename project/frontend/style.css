@@ -288,8 +288,8 @@ button:hover {
 
 .warning {
   margin-top: 0.9rem;
-  border: 1px solid rgba(173, 106, 98, 0.55);
-  background: rgba(173, 106, 98, 0.15);
+  border: 2px solid #FF0000;
+  background: rgba(255, 0, 0, 0.2);
   border-radius: 10px;
   padding: 0.56rem 0.68rem;
   color: #000000;
@@ -299,7 +299,7 @@ button:hover {
 
 .warning p {
   margin-top: 0.3rem;
-  color: #000000;
+  color: #FF0000;
   font-weight: 700;
   text-decoration: underline;
 }
