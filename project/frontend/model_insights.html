@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Model Insights | Cardiac Risk Backend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body class="dashboard-body">
+  <main class="dashboard">
+    <header class="panel header">
+      <div>
+        <nav class="top-nav">
+          <a href="index.html" class="nav-link">← Home</a>
+          <a href="intake.html" class="nav-link">Simulated Intake</a>
+          <a href="dashboard.html" class="nav-link">Live Dashboard</a>
+          <a href="dataset.html" class="nav-link">Dataset Dashboard</a>
+          <a href="model_insights.html" class="nav-link active">Model Insights</a>
+        </nav>
+        <h1>How Our Backend Works</h1>
+        <p class="muted">Model choice, prediction pipeline, and benchmark comparison</p>
+
+        <div class="hero-marks" aria-label="Model highlights">
+          <span class="mark-chip">Benchmarking</span>
+          <span class="mark-chip">Feature ranking</span>
+          <span class="mark-chip">Confusion matrix</span>
+        </div>
+      </div>
+      <div class="patient-chip">
+        <span id="modelMeta">Model: --</span>
+      </div>
+    </header>
+
+    <section class="kpi-grid dataset-kpi-grid">
+      <article class="panel kpi kpi-hr">
+        <p>Test Accuracy</p>
+        <h2 id="modelAccuracy">--%</h2>
+      </article>
+      <article class="panel kpi kpi-spo2">
+        <p>ROC-AUC (Receiver Operating Characteristic - Area Under the Curve)</p>
+        <h2 id="modelAuc">--</h2>
+        <p id="modelAucMeaning" class="kpi-meaning">--</p>
+      </article>
+      <article class="panel kpi kpi-rr">
+        <p>Balanced Accuracy Gain vs Best Other</p>
+        <h2 id="modelGainAccuracy">--%</h2>
+        <p id="modelGainBestMeaning" class="kpi-meaning">--</p>
+      </article>
+      <article class="panel kpi kpi-temp">
+        <p>ROC-AUC Gain vs Logistic</p>
+        <h2 id="modelGainAuc">--%</h2>
+        <p id="modelGainLogMeaning" class="kpi-meaning">--</p>
+      </article>
+    </section>
+
+    <section class="grid">
+      <article class="panel dataset-wide-chart">
+        <h3>Backend Prediction Flow</h3>
+        <div id="backendFlow" class="backend-flow"></div>
+      </article>
+
+      <article class="panel chart-panel dataset-wide-chart">
+        <h3>Why This Model Fits This Dataset</h3>
+        <div class="insight-copy" id="modelWhyText">
+          The selected model is benchmarked against several alternatives to balance discrimination, stability, and class separation.
+        </div>
+      </article>
+
+      <article class="panel chart-panel dataset-wide-chart">
+        <h3>Model Benchmark Comparison</h3>
+        <div class="chart-with-insight chart-with-insight-wide">
+          <div class="chart-canvas-wrap"><canvas id="modelCompareChart"></canvas></div>
+          <aside id="modelCompareInsight" class="chart-insight"></aside>
+        </div>
+      </article>
+
+      <article class="panel chart-panel dataset-wide-chart">
+        <h3>Top Feature Importance</h3>
+        <div class="chart-with-insight chart-with-insight-wide">
+          <div class="chart-canvas-wrap"><canvas id="featureImportanceChart"></canvas></div>
+          <aside id="featureInsight" class="chart-insight"></aside>
+        </div>
+      </article>
+
+      <article class="panel chart-panel dataset-wide-chart">
+        <h3>Confusion Matrix</h3>
+        <div class="chart-with-insight chart-with-insight-wide">
+          <div class="chart-canvas-wrap"><canvas id="confusionMatrixChart"></canvas></div>
+          <aside id="confusionInsight" class="chart-insight"></aside>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

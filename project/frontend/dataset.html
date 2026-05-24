@@ -6,7 +6,7 @@
   <title>Cardiac Dataset Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;700&family=Manrope:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
   <script src="script.js" defer></script>
@@ -16,12 +16,20 @@
     <header class="panel header">
       <div>
         <nav class="top-nav">
-          <a href="index.html" class="nav-link">Intake</a>
+          <a href="index.html" class="nav-link">← Home</a>
+          <a href="intake.html" class="nav-link">Simulated Intake</a>
           <a href="dashboard.html" class="nav-link">Live Dashboard</a>
           <a href="dataset.html" class="nav-link active">Dataset Dashboard</a>
+          <a href="model_insights.html" class="nav-link">Model Insights</a>
         </nav>
         <h1>Cardiac Dataset Dashboard</h1>
         <p class="muted">Exploration of merged_cardiac_training_dataset.csv</p>
+
+        <div class="hero-marks" aria-label="Dataset highlights">
+          <span class="mark-chip">Filtered cohorts</span>
+          <span class="mark-chip">Interactive charts</span>
+          <span class="mark-chip">Table preview</span>
+        </div>
       </div>
       <div class="patient-chip">
         <span id="datasetMeta">Rows: --</span>
@@ -38,7 +46,7 @@
         <h2 id="kpiColumns">--</h2>
       </article>
       <article class="panel kpi kpi-rr">
-        <p>Disease Prevalence</p>
+        <p>Heart Disease Rate</p>
         <h2 id="kpiPrevalence">--%</h2>
       </article>
       <article class="panel kpi kpi-temp">
@@ -87,20 +95,32 @@
 
     <section class="grid">
       <article class="panel chart-panel">
-        <h3>Age Distribution</h3>
-        <canvas id="ageDistChart"></canvas>
+        <h3>Cohort Size By Age Band</h3>
+        <div class="chart-with-insight">
+          <div class="chart-canvas-wrap"><canvas id="ageDistChart"></canvas></div>
+          <aside id="ageDistInsight" class="chart-insight" aria-label="Age cohort insights"></aside>
+        </div>
       </article>
       <article class="panel chart-panel">
-        <h3>Gender Distribution</h3>
-        <canvas id="sexDistChart"></canvas>
+        <h3>Heart Disease Rate By Sex</h3>
+        <div class="chart-with-insight">
+          <div class="chart-canvas-wrap"><canvas id="sexDistChart"></canvas></div>
+          <aside id="sexDistInsight" class="chart-insight" aria-label="Sex risk insights"></aside>
+        </div>
       </article>
       <article class="panel chart-panel">
-        <h3>Disease Distribution</h3>
-        <canvas id="riskDistChart"></canvas>
+        <h3>Heart Disease Rate By Age Band</h3>
+        <div class="chart-with-insight">
+          <div class="chart-canvas-wrap"><canvas id="riskDistChart"></canvas></div>
+          <aside id="riskDistInsight" class="chart-insight" aria-label="Age risk insights"></aside>
+        </div>
       </article>
       <article class="panel chart-panel dataset-wide-chart">
-        <h3>SpO2 Bands</h3>
-        <canvas id="spo2BandChart"></canvas>
+        <h3>SpO2 Safety Bands</h3>
+        <div class="chart-with-insight chart-with-insight-wide">
+          <div class="chart-canvas-wrap"><canvas id="spo2BandChart"></canvas></div>
+          <aside id="spo2BandInsight" class="chart-insight" aria-label="SpO2 band insights"></aside>
+        </div>
       </article>
       <article class="panel risk-panel">
         <h3>Dataset Sample (Top Rows)</h3>

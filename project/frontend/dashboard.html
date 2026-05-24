@@ -6,7 +6,7 @@
   <title>Real-Time Cardiac Risk Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;700&family=Manrope:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
   <script src="script.js" defer></script>
@@ -16,12 +16,20 @@
     <header class="panel header">
       <div>
         <nav class="top-nav">
-          <a href="index.html" class="nav-link">Intake</a>
+          <a href="index.html" class="nav-link">← Home</a>
+          <a href="intake.html" class="nav-link">Simulated Intake</a>
           <a href="dashboard.html" class="nav-link active">Live Dashboard</a>
           <a href="dataset.html" class="nav-link">Dataset Dashboard</a>
+          <a href="model_insights.html" class="nav-link">Model Insights</a>
         </nav>
         <h1>Real-Time Cardiac Risk Dashboard</h1>
-        <p class="muted">Streaming vitals from simulated IoT and camera sensors</p>
+        <p class="muted">Streaming vitals from simulated IoT &amp; camera sensor pipeline</p>
+
+        <div class="hero-marks" aria-label="Dashboard highlights">
+          <span class="mark-chip">Streaming vitals</span>
+          <span class="mark-chip">Calibrated score</span>
+          <span class="mark-chip">Actionable alerts</span>
+        </div>
       </div>
       <div class="patient-chip">
         <span id="patientMeta">Patient: --</span>
@@ -62,9 +70,10 @@
       </article>
       <article class="panel risk-panel">
         <h3>Risk Analysis</h3>
-        <div class="probability-row">
-          <span>Heart Disease Probability</span>
-          <strong id="riskProbability">--%</strong>
+        <div class="score-row">
+          <!-- <span>Calibrated Risk Score (0-40)</span> -->
+           <span>Calibrated Risk Score</span>
+          <strong id="riskScore">--%</strong>
         </div>
         <div id="riskBadge" class="risk-badge">Unknown</div>
         <p id="riskDescription" class="muted">Waiting for prediction...</p>
@@ -75,6 +84,51 @@
         </div>
 
         <dl class="sensor-list" id="sensorList"></dl>
+
+        <section class="risk-explainer" aria-label="Risk analysis explanation">
+          <div class="risk-explainer-grid">
+            <div class="risk-explainer-block">
+              <h4>Live Inputs</h4>
+              <ul id="riskRequestFields" class="detail-list"></ul>
+            </div>
+
+            <div class="risk-explainer-block">
+              <h4>Displayed Score</h4>
+              <dl class="response-list">
+                <dt>risk_score</dt>
+                <dd>Calibrated score returned by <span>/predict</span> on a 0-40 scale</dd>
+                <dt>risk_level</dt>
+                <dd>Server risk label: Low, Medium, or High</dd>
+              </dl>
+            </div>
+          </div>
+
+          <div class="risk-explainer-grid">
+            <div class="risk-explainer-block">
+              <h4>Assessment Notes</h4>
+              <p class="muted">
+                The dashboard fuses live vitals, simulated camera signals, and demographic context into a single
+                score for quick review.
+              </p>
+            </div>
+
+            <div class="risk-explainer-block">
+              <h4>Alert Thresholds</h4>
+              <ul class="detail-list formula-list">
+                <li>Low oxygen warning if SpO₂ &lt; 92%</li>
+                <li>Elevated heart-rate warning if Heart Rate &gt; 110 bpm</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="risk-explainer-block">
+            <h4>Calculation Method</h4>
+            <p class="muted">
+              The backend uses an AdaBoost model with live vitals and demographic data. The dashboard shows a
+              normalized assessment score for the current risk state.
+            </p>
+          </div>
+        </section>
       </article>
     </section>
   </main>

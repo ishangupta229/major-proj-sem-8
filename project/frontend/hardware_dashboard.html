@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hardware Live Dashboard — Cardiac IoT Monitor</title>
+  <meta name="description" content="Real-time cardiac risk dashboard powered by live ESP8266 sensor readings via MAX30102, DS18B20 and MPU6050." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body class="dashboard-body">
+  <main class="dashboard">
+
+    <!-- ── Header ── -->
+    <header class="panel header">
+      <div>
+        <nav class="top-nav">
+          <a href="index.html" class="nav-link">← Home</a>
+          <a href="hardware.html" class="nav-link">Hardware Intake</a>
+          <a href="hardware_dashboard.html" class="nav-link active">Live Hardware</a>
+          <a href="dataset.html" class="nav-link">Dataset Dashboard</a>
+          <a href="model_insights.html" class="nav-link">Model Insights</a>
+        </nav>
+        <h1>Hardware Live Dashboard</h1>
+        <p class="muted">Streaming real vitals from ESP8266 · MAX30102 · DS18B20 · MPU6050</p>
+        <div class="hero-marks">
+          <span class="mark-chip mark-chip--hw">
+            <span class="hw-live-dot hw-live-dot--chip"></span>
+            Live Hardware
+          </span>
+          <span class="mark-chip">Real Sensor Data</span>
+          <span class="mark-chip">AdaBoost Risk Model</span>
+        </div>
+      </div>
+      <div class="patient-chip" id="hwPatientMeta">Patient: --</div>
+    </header>
+
+    <!-- ── Device Waiting Banner ── -->
+    <div class="hw-waiting-banner" id="hwWaitingBanner">
+      <div class="hw-waiting-inner">
+        <div class="hw-waiting-spinner"></div>
+        <div>
+          <strong>Waiting for device data…</strong>
+          <p class="muted">No readings from the ESP8266 yet. Make sure it is powered on, connected to Wi-Fi, and sending POST requests to <code>/api/health</code>.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── KPI Grid ── -->
+    <section class="kpi-grid">
+      <article class="panel kpi kpi-hr">
+        <p>Heart Rate</p>
+        <h2 id="hwHeartRate">--</h2>
+        <span class="kpi-source">MAX30102</span>
+      </article>
+      <article class="panel kpi kpi-spo2">
+        <p>SpO₂</p>
+        <h2 id="hwSpo2">--</h2>
+        <span class="kpi-source">MAX30102</span>
+      </article>
+      <article class="panel kpi kpi-temp">
+        <p>Body Temperature</p>
+        <h2 id="hwTemp">--</h2>
+        <span class="kpi-source">DS18B20</span>
+      </article>
+      <article class="panel kpi kpi-motion">
+        <p>Motion Magnitude</p>
+        <h2 id="hwMotion">--</h2>
+        <span class="kpi-source">MPU6050</span>
+      </article>
+    </section>
+
+    <!-- ── Charts + Risk ── -->
+    <section class="grid">
+      <article class="panel chart-panel">
+        <h3>Heart Rate Over Time</h3>
+        <canvas id="hwHrChart"></canvas>
+      </article>
+      <article class="panel chart-panel">
+        <h3>SpO₂ Over Time</h3>
+        <canvas id="hwSpo2Chart"></canvas>
+      </article>
+      <article class="panel chart-panel">
+        <h3>Temperature Over Time</h3>
+        <canvas id="hwTempChart"></canvas>
+      </article>
+
+      <!-- Risk Panel -->
+      <article class="panel risk-panel">
+        <h3>Risk Analysis</h3>
+        <div class="score-row">
+          <span>Calibrated Risk Score</span>
+          <strong id="hwRiskScore">--%</strong>
+        </div>
+        <div id="hwRiskBadge" class="risk-badge">Unknown</div>
+        <p id="hwRiskDescription" class="muted">Waiting for prediction…</p>
+
+        <div id="hwWarningBox" class="warning" hidden>
+          <strong>Warning</strong>
+          <p id="hwWarningText">No active alerts.</p>
+        </div>
+
+        <!-- Raw sensor readout -->
+        <div class="hw-sensor-readout" id="hwSensorReadout">
+          <h4>Raw Device Values</h4>
+          <dl class="hw-raw-grid" id="hwRawGrid"></dl>
+        </div>
+
+        <!-- Risk explainer -->
+        <section class="risk-explainer" aria-label="Risk analysis explanation">
+          <div class="risk-explainer-grid">
+            <div class="risk-explainer-block">
+              <h4>Hardware Inputs (Real)</h4>
+              <ul class="detail-list formula-list">
+                <li>heart_rate — MAX30102 averaged reading</li>
+                <li>spo2 — MAX30102 oxygen saturation</li>
+                <li>body_temperature — DS18B20 in °C</li>
+                <li>accX / accY / accZ — MPU6050 acceleration</li>
+                <li>gyroX / gyroY / gyroZ — MPU6050 rotation</li>
+              </ul>
+            </div>
+            <div class="risk-explainer-block">
+              <h4>Model Proxies (Derived)</h4>
+              <ul class="detail-list formula-list">
+                <li>pulse_rate ≈ heart_rate ± 1</li>
+                <li>respiratory_rate — age-adjusted baseline</li>
+                <li>hrv_rmssd — estimated from heart rate</li>
+                <li>stress_score — motion-magnitude proxy</li>
+                <li>activity_level — √(ax²+ay²+az²) normalised</li>
+              </ul>
+            </div>
+          </div>
+          <div class="risk-explainer-grid">
+            <div class="risk-explainer-block">
+              <h4>Alert Thresholds</h4>
+              <ul class="detail-list formula-list">
+                <li>Low SpO₂ warning if SpO₂ &lt; 92%</li>
+                <li>Elevated HR warning if Heart Rate &gt; 110 bpm</li>
+                <li>High temp warning if Temperature &gt; 38.0 °C</li>
+              </ul>
+            </div>
+            <div class="risk-explainer-block">
+              <h4>Displayed Score</h4>
+              <dl class="response-list">
+                <dt>risk_score</dt>
+                <dd>Calibrated 0–40 score from <span>/predict</span></dd>
+                <dt>risk_level</dt>
+                <dd>Low / Medium / High label</dd>
+              </dl>
+            </div>
+          </div>
+        </section>
+      </article>
+    </section>
+
+    <!-- ── Motion Panel ── -->
+    <section class="grid">
+      <article class="panel chart-panel" style="grid-column: span 6;">
+        <h3>Accelerometer (X / Y / Z)</h3>
+        <canvas id="hwAccChart"></canvas>
+      </article>
+      <article class="panel chart-panel" style="grid-column: span 6;">
+        <h3>Gyroscope (X / Y / Z)</h3>
+        <canvas id="hwGyroChart"></canvas>
+      </article>
+    </section>
+
+  </main>
+</body>
+</html>

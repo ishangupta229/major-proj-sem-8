@@ -1,0 +1,85 @@
+{
+  "train_accuracy": 0.7285,
+  "test_accuracy": 0.727,
+  "roc_auc": 0.8378973058149815,
+  "rows": 5000,
+  "confusion_matrix": [
+    [
+      116,
+      2
+    ],
+    [
+      271,
+      611
+    ]
+  ],
+  "classification_report": {
+    "0": {
+      "precision": 0.2997416020671835,
+      "recall": 0.9830508474576272,
+      "f1-score": 0.4594059405940594,
+      "support": 118.0
+    },
+    "1": {
+      "precision": 0.9967373572593801,
+      "recall": 0.6927437641723356,
+      "f1-score": 0.8173913043478261,
+      "support": 882.0
+    },
+    "accuracy": 0.727,
+    "macro avg": {
+      "precision": 0.6482394796632818,
+      "recall": 0.8378973058149815,
+      "f1-score": 0.6383986224709428,
+      "support": 1000.0
+    },
+    "weighted avg": {
+      "precision": 0.9144918581467009,
+      "recall": 0.727,
+      "f1-score": 0.7751490314248818,
+      "support": 1000.0
+    }
+  },
+  "top_features": [
+    {
+      "feature": "age",
+      "importance": 0.6996809235645384
+    },
+    {
+      "feature": "stress_score",
+      "importance": 0.23840356402085944
+    },
+    {
+      "feature": "spo2",
+      "importance": 0.06191551241460218
+    },
+    {
+      "feature": "heart_rate",
+      "importance": 0.0
+    },
+    {
+      "feature": "sex",
+      "importance": 0.0
+    },
+    {
+      "feature": "pulse_rate",
+      "importance": 0.0
+    },
+    {
+      "feature": "body_temperature",
+      "importance": 0.0
+    },
+    {
+      "feature": "hrv_rmssd",
+      "importance": 0.0
+    },
+    {
+      "feature": "respiratory_rate",
+      "importance": 0.0
+    },
+    {
+      "feature": "hrv_sdnn",
+      "importance": 0.0
+    }
+  ]
+}

@@ -3,44 +3,134 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cardiac IoT Intake</title>
+  <title>Cardiac IoT Monitor — Choose Input Source</title>
+  <meta name="description" content="Select your data input source: simulated sensor pipeline or real ESP8266 hardware for live cardiac risk monitoring." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;700&family=Manrope:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
-<body class="intake-body">
-  <main class="intake-shell">
-    <section class="intake-card">
+<body class="landing-body">
+  <main class="landing-shell">
+
+    <header class="landing-header">
       <nav class="top-nav">
-        <a href="index.html" class="nav-link active">Intake</a>
+        <a href="index.html" class="nav-link active">Home</a>
         <a href="dataset.html" class="nav-link">Dataset Dashboard</a>
+        <a href="model_insights.html" class="nav-link">Model Insights</a>
       </nav>
+      <p class="eyebrow">IoT Cardiac Monitoring System</p>
+      <h1 class="landing-title">Select Input Source</h1>
+      <p class="muted landing-sub">
+        Choose how you want to feed vitals data into the cardiac risk engine.
+        Use the simulated pipeline for demos, or connect your ESP8266 hardware for real patient monitoring.
+      </p>
+    </header>
 
-      <p class="eyebrow">IoT Cardiac Monitoring</p>
-      <h1>Patient Intake</h1>
-      <p class="muted">Enter basic demographics to start live sensor-based cardiac risk monitoring.</p>
+    <section class="source-grid" aria-label="Input source options">
 
-      <form id="intakeForm" class="intake-form">
-        <label>
-          Age
-          <input type="number" id="age" name="age" min="1" max="120" required />
-        </label>
+      <!-- Option A: Simulated -->
+      <a href="intake.html" class="source-card source-card--sim" id="cardSimulated" role="button">
+        <div class="source-card-icon" aria-hidden="true">
+          <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="7" width="32" height="24" rx="5" stroke="currentColor" stroke-width="2.2" fill="none"/>
+            <path d="M8 21 L13 15 L18 20 L23 12 L30 21" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="19" cy="32" r="2" fill="currentColor"/>
+            <path d="M14 34 h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="source-card-body">
+          <h2 class="source-card-title">Simulated Input</h2>
+          <p class="source-card-desc">
+            Use the software sensor pipeline. Vitals are generated and drifted algorithmically in real time. 
+            No hardware required — perfect for testing and demonstration.
+          </p>
+          <div class="source-card-chips">
+            <span class="mark-chip">No hardware needed</span>
+            <span class="mark-chip">Demo mode</span>
+            <span class="mark-chip">Sensor fusion</span>
+          </div>
+        </div>
+        <div class="source-card-cta">
+          Start Simulation
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <path d="M4 9h10M10 5l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </a>
 
-        <label>
-          Sex
-          <select id="sex" name="sex" required>
-            <option value="">Select</option>
-            <option value="1">Male</option>
-            <option value="0">Female</option>
-          </select>
-        </label>
+      <!-- Option B: Hardware -->
+      <a href="hardware.html" class="source-card source-card--hw" id="cardHardware" role="button">
+        <div class="source-card-icon" aria-hidden="true">
+          <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="10" width="30" height="18" rx="4" stroke="currentColor" stroke-width="2.2" fill="none"/>
+            <circle cx="13" cy="19" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
+            <circle cx="13" cy="19" r="1" fill="currentColor"/>
+            <path d="M20 15 h8 M20 19 h6 M20 23 h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M10 10 V6 M19 10 V6 M28 10 V6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M10 28 V32 M19 28 V32 M28 28 V32" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="hw-live-dot" aria-label="Live hardware indicator"></div>
+        <div class="source-card-body">
+          <h2 class="source-card-title">Hardware Input</h2>
+          <p class="source-card-desc">
+            Connect your ESP8266 + MAX30102 (SpO₂ &amp; heart rate) + DS18B20 (temperature) + MPU6050 (motion).
+            The device POSTs vitals to the backend every 2 seconds for real-time monitoring.
+          </p>
+          <div class="source-card-chips">
+            <span class="mark-chip mark-chip--hw">Live sensor</span>
+            <span class="mark-chip mark-chip--hw">ESP8266</span>
+            <span class="mark-chip mark-chip--hw">MAX30102</span>
+            <span class="mark-chip mark-chip--hw">MPU6050</span>
+          </div>
+        </div>
+        <div class="source-card-cta source-card-cta--hw">
+          Connect Hardware
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <path d="M4 9h10M10 5l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </a>
 
-        <button type="submit">Start Live Monitoring</button>
-      </form>
     </section>
-  </main>
 
-  <script src="script.js"></script>
+    <!-- Flow diagram -->
+    <section class="landing-flow panel" aria-label="System data flow">
+      <h3>End-to-End Data Flow</h3>
+      <div class="landing-flow-steps">
+        <div class="lf-step">
+          <span class="lf-icon lf-icon--device">📡</span>
+          <strong>ESP8266</strong>
+          <span class="muted">Reads sensors every 2 s</span>
+        </div>
+        <div class="lf-arrow">→</div>
+        <div class="lf-step">
+          <span class="lf-icon lf-icon--api">⚡</span>
+          <strong>Backend API</strong>
+          <span class="muted">POST /api/health</span>
+        </div>
+        <div class="lf-arrow">→</div>
+        <div class="lf-step">
+          <span class="lf-icon lf-icon--db">🗄️</span>
+          <strong>SQLite DB</strong>
+          <span class="muted">Persists every reading</span>
+        </div>
+        <div class="lf-arrow">→</div>
+        <div class="lf-step">
+          <span class="lf-icon lf-icon--model">🧠</span>
+          <strong>AdaBoost Model</strong>
+          <span class="muted">Risk prediction</span>
+        </div>
+        <div class="lf-arrow">→</div>
+        <div class="lf-step">
+          <span class="lf-icon lf-icon--dash">📊</span>
+          <strong>Dashboard</strong>
+          <span class="muted">Live risk display</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
 </body>
 </html>

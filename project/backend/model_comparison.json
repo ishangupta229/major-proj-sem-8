@@ -1,0 +1,52 @@
+{
+  "selected_model": "AdaBoost Classifier",
+  "models": [
+    {
+      "model": "AdaBoost Classifier",
+      "accuracy": 0.727,
+      "balanced_accuracy": 0.8378973058149815,
+      "f1": 0.8173913043478261,
+      "roc_auc": 0.8378973058149815
+    },
+    {
+      "model": "Random Forest",
+      "accuracy": 0.748,
+      "balanced_accuracy": 0.7874053576232753,
+      "f1": 0.8374193548387097,
+      "roc_auc": 0.8525884930243284
+    },
+    {
+      "model": "Naive Bayes",
+      "accuracy": 0.88,
+      "balanced_accuracy": 0.5025366078634844,
+      "f1": 0.9361022364217252,
+      "roc_auc": 0.8306429916599407
+    },
+    {
+      "model": "Logistic Regression",
+      "accuracy": 0.696,
+      "balanced_accuracy": 0.7248933471693761,
+      "f1": 0.7994722955145118,
+      "roc_auc": 0.796369960413544
+    },
+    {
+      "model": "Decision Tree",
+      "accuracy": 0.741,
+      "balanced_accuracy": 0.8128002613474768,
+      "f1": 0.8303863785199738,
+      "roc_auc": 0.814587416887659
+    },
+    {
+      "model": "Baseline (Most Frequent)",
+      "accuracy": 0.882,
+      "balanced_accuracy": 0.5,
+      "f1": 0.9373007438894793,
+      "roc_auc": 0.5
+    }
+  ],
+  "selected_model_vs_best_other": {
+    "accuracy_gain_pct": -17.57,
+    "balanced_accuracy_gain_pct": 3.09,
+    "roc_auc_gain_pct": -1.72
+  }
+}

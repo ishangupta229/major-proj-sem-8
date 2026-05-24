@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulated Patient Intake — Cardiac IoT Monitor</title>
+  <meta name="description" content="Enter patient demographics to start simulated sensor-based cardiac risk monitoring." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="intake-body">
+  <main class="intake-shell">
+    <section class="intake-card">
+      <nav class="top-nav">
+        <a href="index.html" class="nav-link">← Home</a>
+        <a href="intake.html" class="nav-link active">Simulated Intake</a>
+        <a href="dataset.html" class="nav-link">Dataset Dashboard</a>
+        <a href="model_insights.html" class="nav-link">Model Insights</a>
+      </nav>
+
+      <p class="eyebrow">Simulated Sensor Pipeline</p>
+      <h1>Patient Intake</h1>
+      <p class="muted">Enter basic demographics to start simulated live sensor-based cardiac risk monitoring.</p>
+
+      <div class="hero-marks" aria-label="Highlights">
+        <span class="mark-chip">Fast intake</span>
+        <span class="mark-chip">Live risk preview</span>
+        <span class="mark-chip">Sensor fusion</span>
+      </div>
+
+      <form id="intakeForm" class="intake-form">
+        <label>
+          Age
+          <input type="number" id="age" name="age" min="1" max="120" required />
+        </label>
+
+        <label>
+          Sex
+          <select id="sex" name="sex" required>
+            <option value="">Select</option>
+            <option value="1">Male</option>
+            <option value="0">Female</option>
+          </select>
+        </label>
+
+        <button type="submit">Start Live Monitoring</button>
+      </form>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

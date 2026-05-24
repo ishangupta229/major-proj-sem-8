@@ -1,9 +1,6 @@
-const API_BASE = window.location.origin.startsWith("http")
-  ? window.location.origin
-  : "http://127.0.0.1:8000";
+const API_BASE = resolveApiBase();
 const SENSOR_INTERVAL_MS = 2000;
 const MAX_POINTS = 24;
-
 const state = {
   age: null,
   sex: null,
@@ -17,6 +14,9 @@ const state = {
     sexDist: null,
     riskDist: null,
     spo2Band: null,
+    modelCompare: null,
+    featureImportance: null,
+    confusionMatrix: null,
   },
   series: {
     labels: [],
@@ -44,6 +44,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("datasetMeta")) {
     setupDatasetPage();
   }
+
+  if (document.getElementById("modelAccuracy")) {
+    setupModelInsightsPage();
+  }
 });
 
 function setupIntakePage() {
@@ -62,10 +66,20 @@ function setupIntakePage() {
 
 function setupDashboardPage() {
   const params = new URLSearchParams(window.location.search);
-  state.age = Number(params.get("age"));
-  state.sex = Number(params.get("sex"));
+  const ageParam = params.get("age");
+  const sexParam = params.get("sex");
+  state.age = Number(ageParam);
+  state.sex = Number(sexParam);
 
-  if (!Number.isFinite(state.age) || !Number.isFinite(state.sex)) {
+  if (
+    ageParam === null ||
+    sexParam === null ||
+    !Number.isFinite(state.age) ||
+    !Number.isFinite(state.sex) ||
+    state.age < 1 ||
+    state.age > 120 ||
+    (state.sex !== 0 && state.sex !== 1)
+  ) {
     window.location.href = "index.html";
     return;
   }
@@ -75,6 +89,7 @@ function setupDashboardPage() {
 
   state.sensors = buildInitialSensors(state.age);
   initCharts();
+  renderRiskRequestFields();
   renderAll();
 
   setInterval(() => {
@@ -242,27 +257,48 @@ function updateWarnings() {
 function updateSensorList() {
   const sensorList = document.getElementById("sensorList");
   const entries = [
-    ["Pulse Rate", `${state.sensors.pulse_rate.toFixed(1)} bpm`],
-    ["HRV RMSSD", `${state.sensors.hrv_rmssd.toFixed(1)} ms`],
-    ["HRV SDNN", `${state.sensors.hrv_sdnn.toFixed(1)} ms`],
-    ["Activity", `${state.sensors.activity_level.toFixed(1)} / 100`],
-    ["Camera HR", `${state.sensors.camera_heart_rate.toFixed(1)} bpm`],
-    ["Camera HRV", `${state.sensors.camera_hrv.toFixed(1)} ms`],
-    ["Respiration Camera", `${state.sensors.respiration_rate_camera.toFixed(1)} rpm`],
-    ["Stress Score", `${state.sensors.stress_score.toFixed(1)} / 100`],
-    ["Fatigue Score", `${state.sensors.fatigue_score.toFixed(1)} / 100`],
-    ["Estimated Age", `${state.sensors.estimated_age.toFixed(1)} years`],
-    ["Skin Perfusion Index", `${state.sensors.skin_perfusion_index.toFixed(2)}`],
+    ["Pulse Rate", "pulse_rate ≈ heart_rate ± 2", `${state.sensors.pulse_rate.toFixed(1)} bpm`],
+    ["Activity", "activity_level = normalized motion score", `${state.sensors.activity_level.toFixed(1)} / 100`],
+    ["Stress Score", "stress_score = normalized stress index", `${state.sensors.stress_score.toFixed(1)} / 100`],
+    ["Estimated Age", "estimated_age = age ± 2", `${state.sensors.estimated_age.toFixed(1)} years`],
   ];
 
   sensorList.innerHTML = "";
-  entries.forEach(([name, value]) => {
+  entries.forEach(([name, formula, value]) => {
     const dt = document.createElement("dt");
-    dt.textContent = name;
+    dt.innerHTML = `<span class="sensor-name">${name}</span><span class="sensor-formula">${formula}</span>`;
     const dd = document.createElement("dd");
     dd.textContent = value;
     sensorList.appendChild(dt);
     sensorList.appendChild(dd);
+  });
+}
+
+function renderRiskRequestFields() {
+  const list = document.getElementById("riskRequestFields");
+
+  if (!list) {
+    return;
+  }
+
+  const fields = [
+    ["age", `${state.age} years`],
+    ["sex", state.sex === 1 ? "1 (Male)" : "0 (Female)"],
+    ["heart_rate", "Live wearable heart rate"],
+    ["respiratory_rate", "Breaths per minute"],
+    ["spo2", "Oxygen saturation percentage"],
+    ["pulse_rate", "Pulse from sensor feed"],
+    ["body_temperature", "Body temperature in C"],
+    ["activity_level", "Normalized activity score"],
+    ["stress_score", "Stress score from simulated stream"],
+    ["estimated_age", "Estimated age from camera pipeline"],
+  ];
+
+  list.innerHTML = "";
+  fields.forEach(([name, description]) => {
+    const item = document.createElement("li");
+    item.innerHTML = `<strong>${name}</strong>: ${description}`;
+    list.appendChild(item);
   });
 }
 
@@ -285,27 +321,35 @@ async function sendPrediction() {
     }
 
     const result = await response.json();
-    updateRiskUi(result.probability, result.risk_level);
+    updateRiskUi(result.risk_score, result.risk_level);
   } catch (error) {
     updateRiskUi(null, "Unknown", `API error: ${error.message}`);
   }
 }
 
-function updateRiskUi(probability, riskLevel, message = "") {
-  const probEl = document.getElementById("riskProbability");
+function updateRiskUi(riskScore, riskLevel, message = "") {
+  const scoreEl = document.getElementById("riskScore");
   const badge = document.getElementById("riskBadge");
   const desc = document.getElementById("riskDescription");
 
-  if (probability === null) {
-    probEl.textContent = "--%";
+  if (riskScore === null) {
+    scoreEl.textContent = "--%";
     badge.textContent = "Unavailable";
     badge.className = "risk-badge";
     desc.textContent = message || "Prediction unavailable.";
     return;
   }
 
-  const pct = (Number(probability) * 100).toFixed(1);
-  probEl.textContent = `${pct}%`;
+  const score = Number(riskScore);
+  if (!Number.isFinite(score)) {
+    scoreEl.textContent = "--%";
+    badge.textContent = "Unavailable";
+    badge.className = "risk-badge";
+    desc.textContent = message || "Prediction unavailable.";
+    return;
+  }
+
+  scoreEl.textContent = `${score.toFixed(1)}%`;
   badge.textContent = riskLevel;
   badge.className = "risk-badge";
 
@@ -414,17 +458,17 @@ function renderDatasetCharts(summary) {
     "#8B6F47",
   );
 
-  state.charts.sexDist = createSimpleDoughnutChart(
+  state.charts.sexDist = createSimpleBarChart(
     "sexDistChart",
-    summary.sex_distribution.labels,
-    summary.sex_distribution.counts,
-    ["#8B6F47", "#C2A878", "#6B6B6B"],
+    summary.sex_risk_distribution.labels,
+    summary.sex_risk_distribution.rates,
+    "#C2A878",
   );
 
   state.charts.riskDist = createSimpleBarChart(
     "riskDistChart",
-    summary.risk_distribution.labels,
-    summary.risk_distribution.counts,
+    summary.age_risk_distribution.labels,
+    summary.age_risk_distribution.rates,
     "#AD6A62",
   );
 
@@ -434,6 +478,335 @@ function renderDatasetCharts(summary) {
     summary.spo2_band_distribution.counts,
     "#6F8A6E",
   );
+
+  renderDatasetChartInsights(summary);
+}
+
+function renderDatasetChartInsights(summary) {
+  const ageLabels = summary.age_distribution?.labels || [];
+  const ageCounts = summary.age_distribution?.counts || [];
+  const ageRiskLabels = summary.age_risk_distribution?.labels || [];
+  const ageRiskRates = summary.age_risk_distribution?.rates || [];
+  const sexLabels = summary.sex_risk_distribution?.labels || [];
+  const sexRates = summary.sex_risk_distribution?.rates || [];
+  const spo2Labels = summary.spo2_band_distribution?.labels || [];
+  const spo2Counts = summary.spo2_band_distribution?.counts || [];
+
+  const maxAgeCountIdx = indexOfMax(ageCounts);
+  const maxAgeRiskIdx = indexOfMax(ageRiskRates);
+  const maxSexRiskIdx = indexOfMax(sexRates);
+  const lowSpo2Idx = spo2Labels.findIndex((label) => String(label).toLowerCase().includes("low"));
+
+  renderInsightList("ageDistInsight", [
+    `Largest cohort: ${safeAt(ageLabels, maxAgeCountIdx, "--")} (${safeAt(ageCounts, maxAgeCountIdx, 0)} records)`,
+    `Smallest cohort: ${safeAt(ageLabels, indexOfMin(ageCounts), "--")} (${safeAt(ageCounts, indexOfMin(ageCounts), 0)} records)`,
+    `Total filtered rows: ${Number(summary.rows || 0).toLocaleString()}`,
+  ]);
+
+  renderInsightList("sexDistInsight", [
+    `Highest disease rate: ${safeAt(sexLabels, maxSexRiskIdx, "--")} (${formatPct(safeAt(sexRates, maxSexRiskIdx, 0))})`,
+    `Lowest disease rate: ${safeAt(sexLabels, indexOfMin(sexRates), "--")} (${formatPct(safeAt(sexRates, indexOfMin(sexRates), 0))})`,
+    `Gap: ${formatPct(Math.abs((safeAt(sexRates, 0, 0)) - (safeAt(sexRates, 1, 0))))}`,
+  ]);
+
+  renderInsightList("riskDistInsight", [
+    `Highest age-band risk: ${safeAt(ageRiskLabels, maxAgeRiskIdx, "--")} (${formatPct(safeAt(ageRiskRates, maxAgeRiskIdx, 0))})`,
+    `Lowest age-band risk: ${safeAt(ageRiskLabels, indexOfMin(ageRiskRates), "--")} (${formatPct(safeAt(ageRiskRates, indexOfMin(ageRiskRates), 0))})`,
+    `Overall heart disease rate: ${formatPct(summary.disease_prevalence_pct || 0)}`,
+  ]);
+
+  renderInsightList("spo2BandInsight", [
+    `Normal SpO2 share: ${computeShare(spo2Counts, 0)} (${safeAt(spo2Counts, 0, 0)} records)`,
+    `Caution band share: ${computeShare(spo2Counts, 1)} (${safeAt(spo2Counts, 1, 0)} records)`,
+    `Low SpO2 share: ${computeShare(spo2Counts, lowSpo2Idx)} (${safeAt(spo2Counts, lowSpo2Idx, 0)} records)`,
+  ]);
+}
+
+async function setupModelInsightsPage() {
+  try {
+    const response = await fetch(`${API_BASE}/model/insights`);
+    if (!response.ok) {
+      throw new Error("Failed to load model insights");
+    }
+
+    const payload = await response.json();
+    renderModelOverview(payload);
+    renderModelFlow(payload.backend_flow || []);
+    renderModelComparison(payload.comparison || {}, payload.model_name || "Selected model");
+    renderFeatureImportance(payload.top_features || []);
+    renderConfusionMatrix(payload.confusion_matrix || []);
+  } catch (error) {
+    const meta = document.getElementById("modelMeta");
+    if (meta) {
+      meta.textContent = `Model insights error: ${error.message}`;
+    }
+  }
+}
+
+function resolveApiBase() {
+  const host = window.location.hostname || "";
+  const port = window.location.port || "";
+
+  if ((host === "127.0.0.1" || host === "localhost") && port === "8000") {
+    return window.location.origin;
+  }
+
+  return "http://127.0.0.1:8000";
+}
+
+function renderModelOverview(payload) {
+  const models = payload.comparison?.models || [];
+  const primaryModelName = payload.model_name || "Selected model";
+  const primary = models.find((m) => m.model === primaryModelName) || {};
+  const bestOther = models
+    .filter((m) => m.model !== primaryModelName)
+    .reduce((best, current) => (Number(current.balanced_accuracy || 0) > Number(best.balanced_accuracy || -1) ? current : best), {});
+  const logistic = models.find((m) => m.model === "Logistic Regression") || {};
+  const logisticAuc = Number(logistic.roc_auc || 0);
+  const primaryAuc = Number(primary.roc_auc || 0);
+  const primaryBalanced = Number(primary.balanced_accuracy || 0);
+  const bestOtherBalanced = Number(bestOther.balanced_accuracy || 0);
+  const balancedGainVsBest = bestOtherBalanced > 0 ? ((primaryBalanced - bestOtherBalanced) / bestOtherBalanced) * 100 : 0;
+  const aucGainVsLogistic = logisticAuc > 0 ? ((primaryAuc - logisticAuc) / logisticAuc) * 100 : 0;
+
+  document.getElementById("modelMeta").textContent = `Model: ${primaryModelName}`;
+  document.getElementById("modelAccuracy").textContent = formatPct(Number(payload.metrics?.test_accuracy || 0) * 100);
+  document.getElementById("modelAuc").textContent = Number(payload.metrics?.roc_auc || 0).toFixed(3);
+  document.getElementById("modelGainAccuracy").textContent = formatPct(payload.comparison?.selected_model_vs_best_other?.balanced_accuracy_gain_pct || balancedGainVsBest);
+  document.getElementById("modelGainAuc").textContent = formatPct(aucGainVsLogistic);
+
+  const aucValue = Number(payload.metrics?.roc_auc || 0);
+  document.getElementById("modelAucMeaning").textContent = `ROC-AUC (Receiver Operating Characteristic - Area Under the Curve) of ${aucValue.toFixed(3)} means strong class separation across thresholds.`;
+  document.getElementById("modelGainBestMeaning").textContent = `${primaryModelName} improves balanced accuracy by ${formatPct(balancedGainVsBest)} versus the best non-selected model.`;
+  document.getElementById("modelGainLogMeaning").textContent = `Compared with Logistic Regression, ${primaryModelName} improves ranking quality by ${formatPct(aucGainVsLogistic)}.`;
+
+  const balancedGain = payload.comparison?.selected_model_vs_best_other?.balanced_accuracy_gain_pct || balancedGainVsBest;
+  const modelWhy = document.getElementById("modelWhyText");
+  modelWhy.textContent = `${primaryModelName} was selected because it delivers the strongest overall trade-off on this benchmark. In this split it improves balanced accuracy by ${formatPct(balancedGain)} versus the best non-selected model and ROC-AUC by ${formatPct(aucGainVsLogistic)} versus logistic regression.`;
+}
+
+function renderModelFlow(steps) {
+  const container = document.getElementById("backendFlow");
+  container.innerHTML = "";
+
+  steps.forEach((step, idx) => {
+    const card = document.createElement("div");
+    card.className = "flow-step";
+    card.innerHTML = `<span class="flow-step-index">${idx + 1}</span><p>${step}</p>`;
+    container.appendChild(card);
+  });
+}
+
+function renderModelComparison(comparison, selectedModelName = "Selected model") {
+  destroyChart("modelCompare");
+  const models = comparison.models || [];
+  const labels = models.map((m) => m.model);
+  const balancedAccuracy = models.map((m) => Number((m.balanced_accuracy || 0) * 100).toFixed(1));
+  const auc = models.map((m) => Number(m.roc_auc || 0).toFixed(3));
+
+  state.charts.modelCompare = new Chart(document.getElementById("modelCompareChart"), {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Balanced Accuracy (%)",
+          data: balancedAccuracy,
+          backgroundColor: "#8B6F47",
+          borderRadius: 6,
+        },
+        {
+          label: "ROC-AUC x100",
+          data: auc.map((v) => Number(v) * 100),
+          backgroundColor: "#AD6A62",
+          borderRadius: 6,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: "bottom", labels: { color: "#6B6B6B" } },
+      },
+      scales: {
+        x: {
+          ticks: { color: "#6B6B6B" },
+          grid: { color: "rgba(107, 107, 107, 0.16)" },
+        },
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: { color: "#6B6B6B" },
+          grid: { color: "rgba(107, 107, 107, 0.16)" },
+        },
+      },
+    },
+  });
+
+  const bestAccuracy = models.reduce((prev, curr) => (curr.balanced_accuracy > (prev.balanced_accuracy || -1) ? curr : prev), {});
+  const bestAuc = models.reduce((prev, curr) => (curr.roc_auc > (prev.roc_auc || -1) ? curr : prev), {});
+
+  renderInsightList("modelCompareInsight", [
+    `Best balanced accuracy: ${bestAccuracy.model || "--"} (${formatPct((bestAccuracy.balanced_accuracy || 0) * 100)})`,
+    `Best ROC-AUC: ${bestAuc.model || "--"} (${Number(bestAuc.roc_auc || 0).toFixed(3)})`,
+    `${selectedModelName} vs best other (balanced accuracy): ${formatPct(comparison.selected_model_vs_best_other?.balanced_accuracy_gain_pct || 0)}`,
+    `Threshold balance and probability ranking can favor different models on this split.`,
+  ]);
+}
+
+function renderFeatureImportance(topFeatures) {
+  destroyChart("featureImportance");
+  const features = topFeatures.slice(0, 8);
+  const labels = features.map((f) => f.feature);
+  const values = features.map((f) => Number((f.importance || 0) * 100).toFixed(2));
+
+  state.charts.featureImportance = new Chart(document.getElementById("featureImportanceChart"), {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Importance (%)",
+          data: values,
+          backgroundColor: "#6F8A6E",
+          borderRadius: 6,
+        },
+      ],
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          ticks: { color: "#6B6B6B" },
+          grid: { color: "rgba(107, 107, 107, 0.16)" },
+        },
+        y: {
+          ticks: { color: "#6B6B6B" },
+          grid: { color: "rgba(107, 107, 107, 0.16)" },
+        },
+      },
+    },
+  });
+
+  const top = features[0] || { feature: "--", importance: 0 };
+  renderInsightList("featureInsight", [
+    `Strongest predictor: ${top.feature} (${formatPct((top.importance || 0) * 100)})`,
+    `Top 3 drivers: ${(features.slice(0, 3).map((f) => f.feature).join(", ") || "--")}`,
+    `Feature ranking is from the trained model's native importance scores.`,
+  ]);
+}
+
+function renderConfusionMatrix(matrix) {
+  destroyChart("confusionMatrix");
+
+  const safeMatrix = Array.isArray(matrix) && matrix.length === 2
+    ? matrix
+    : [[0, 0], [0, 0]];
+
+  const tn = Number(safeMatrix[0]?.[0] || 0);
+  const fp = Number(safeMatrix[0]?.[1] || 0);
+  const fn = Number(safeMatrix[1]?.[0] || 0);
+  const tp = Number(safeMatrix[1]?.[1] || 0);
+
+  state.charts.confusionMatrix = new Chart(document.getElementById("confusionMatrixChart"), {
+    type: "bar",
+    data: {
+      labels: ["True Negative", "False Positive", "False Negative", "True Positive"],
+      datasets: [
+        {
+          label: "Count",
+          data: [tn, fp, fn, tp],
+          backgroundColor: ["#6F8A6E", "#B8934C", "#AD6A62", "#8B6F47"],
+          borderRadius: 6,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: {
+          ticks: { color: "#6B6B6B" },
+          grid: { color: "rgba(107, 107, 107, 0.16)" },
+        },
+        y: {
+          beginAtZero: true,
+          ticks: { color: "#6B6B6B" },
+          grid: { color: "rgba(107, 107, 107, 0.16)" },
+        },
+      },
+    },
+  });
+
+  const total = tn + fp + fn + tp;
+  const precision = tp + fp > 0 ? (tp / (tp + fp)) * 100 : 0;
+  const recall = tp + fn > 0 ? (tp / (tp + fn)) * 100 : 0;
+
+  renderInsightList("confusionInsight", [
+    `True positives: ${tp.toLocaleString()} | False negatives: ${fn.toLocaleString()}`,
+    `True negatives: ${tn.toLocaleString()} | False positives: ${fp.toLocaleString()}`,
+    `Precision (positive class): ${formatPct(precision)}`,
+    `Recall (positive class): ${formatPct(recall)} from ${total.toLocaleString()} test records`,
+  ]);
+}
+
+function renderInsightList(containerId, lines) {
+  const node = document.getElementById(containerId);
+  if (!node) {
+    return;
+  }
+
+  node.innerHTML = "";
+  const list = document.createElement("ul");
+  list.className = "detail-list formula-list";
+  lines.forEach((line) => {
+    const li = document.createElement("li");
+    li.textContent = line;
+    list.appendChild(li);
+  });
+  node.appendChild(list);
+}
+
+function indexOfMax(values) {
+  if (!Array.isArray(values) || !values.length) {
+    return -1;
+  }
+  return values.reduce((bestIdx, value, idx, arr) => (Number(value) > Number(arr[bestIdx]) ? idx : bestIdx), 0);
+}
+
+function indexOfMin(values) {
+  if (!Array.isArray(values) || !values.length) {
+    return -1;
+  }
+  return values.reduce((bestIdx, value, idx, arr) => (Number(value) < Number(arr[bestIdx]) ? idx : bestIdx), 0);
+}
+
+function safeAt(values, idx, fallback) {
+  if (!Array.isArray(values) || idx < 0 || idx >= values.length) {
+    return fallback;
+  }
+  return values[idx];
+}
+
+function formatPct(value) {
+  return `${Number(value || 0).toFixed(1)}%`;
+}
+
+function computeShare(values, idx) {
+  const total = (values || []).reduce((acc, value) => acc + Number(value || 0), 0);
+  const current = safeAt(values, idx, 0);
+  if (!total) {
+    return "0.0%";
+  }
+  return formatPct((Number(current) / total) * 100);
 }
 
 function destroyChart(name) {

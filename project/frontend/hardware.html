@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hardware Patient Intake — Cardiac IoT Monitor</title>
+  <meta name="description" content="Enter patient demographics to begin real-time hardware-based cardiac risk monitoring via ESP8266 sensors." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="intake-body">
+  <main class="intake-shell">
+    <section class="intake-card">
+      <nav class="top-nav">
+        <a href="index.html" class="nav-link">← Home</a>
+        <a href="hardware.html" class="nav-link active">Hardware Intake</a>
+        <a href="dataset.html" class="nav-link">Dataset Dashboard</a>
+        <a href="model_insights.html" class="nav-link">Model Insights</a>
+      </nav>
+
+      <div class="hw-mode-banner">
+        <span class="hw-live-dot hw-live-dot--inline"></span>
+        Hardware Mode Active
+      </div>
+
+      <p class="eyebrow">ESP8266 · MAX30102 · DS18B20 · MPU6050</p>
+      <h1>Hardware Patient Intake</h1>
+      <p class="muted">
+        Enter patient demographics. The dashboard will read live vitals directly
+        from your ESP8266 device every 2 seconds.
+      </p>
+
+      <div class="hero-marks" aria-label="Hardware highlights">
+        <span class="mark-chip mark-chip--hw">Real Hardware</span>
+        <span class="mark-chip mark-chip--hw">Live Sensor Feed</span>
+        <span class="mark-chip mark-chip--hw">ESP8266 + MAX30102</span>
+      </div>
+
+      <form id="hwIntakeForm" class="intake-form">
+        <label>
+          Age
+          <input type="number" id="hwAge" name="age" min="1" max="120" placeholder="e.g. 35" required />
+        </label>
+
+        <label>
+          Sex
+          <select id="hwSex" name="sex" required>
+            <option value="">Select</option>
+            <option value="1">Male</option>
+            <option value="0">Female</option>
+          </select>
+        </label>
+
+        <button type="submit" id="hwStartBtn">
+          Start Live Hardware Monitoring
+        </button>
+      </form>
+
+      <div class="hw-device-info">
+        <h4>Device Connection</h4>
+        <p class="muted">
+          Ensure your ESP8266 is powered on and connected to the same network as this server.
+          The device should be sending POST requests to <code>/api/health</code>.
+        </p>
+        <div class="hw-specs-grid">
+          <div class="hw-spec-item">
+            <span class="hw-spec-label">Sensor</span>
+            <span class="hw-spec-val">MAX30102</span>
+          </div>
+          <div class="hw-spec-item">
+            <span class="hw-spec-label">Measures</span>
+            <span class="hw-spec-val">HR + SpO₂</span>
+          </div>
+          <div class="hw-spec-item">
+            <span class="hw-spec-label">Sensor</span>
+            <span class="hw-spec-val">DS18B20</span>
+          </div>
+          <div class="hw-spec-item">
+            <span class="hw-spec-label">Measures</span>
+            <span class="hw-spec-val">Temperature</span>
+          </div>
+          <div class="hw-spec-item">
+            <span class="hw-spec-label">Sensor</span>
+            <span class="hw-spec-val">MPU6050</span>
+          </div>
+          <div class="hw-spec-item">
+            <span class="hw-spec-label">Measures</span>
+            <span class="hw-spec-val">Accel + Gyro</span>
+          </div>
+          <div class="hw-spec-item">
+            <span class="hw-spec-label">Send Rate</span>
+            <span class="hw-spec-val">Every 2 s</span>
+          </div>
+          <div class="hw-spec-item">
+            <span class="hw-spec-label">Protocol</span>
+            <span class="hw-spec-val">HTTP POST JSON</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
